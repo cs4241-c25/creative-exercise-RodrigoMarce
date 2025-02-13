@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/nexusui@latest/dist/NexusUI.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+    <title>Web Audio</title>
+</head>
+<body>
+<div id="target"></div>
+<div id="button" style="position: absolute; left: 28%; padding: 30px"></div>
+
+<script>
+
+    const notes = {
+        0: "C3",
+        1: "C#3",
+        2: "D3",
+        3: "D#3",
+        4: "E3",
+        5: "F3",
+        6: "F#3",
+        7: "G3",
+        8: "G#3",
+        9: "A3",
+        10: "A#3",
+        11: "B3",
+        12: "C4"
+    };
+
+    const counter = new Nexus.Counter(0,16);
+    counter.next()
+
+    const synth = new Tone.Synth().toDestination();
+
+    var sequencer = new Nexus.Sequencer('#target',{
+        'size': [800,400],
+        'mode': 'toggle',
+        'rows': 13,
+        'columns': 16,
+        'paddingRow': 5,
+        'paddingColumn': 10
+    })
+
+    sequencer.on('change',function(v) {
+        console.log(v.row);
+        synth.triggerAttackRelease(notes[v.row], "8n");
+    })
+
+    var button = new Nexus.Button('#button',{
+        'mode': 'impulse',
+        'state': false,
+        size: [100, 100]
+    })
+
+    button.on('change',function(v) {
+        if (v) {
+            sequencer.start();
+            for (let i = 0; i < 13; i++) {
+                console.log(sequencer.matrix.pattern[i][counter.value])
+                if (sequencer.matrix.pattern[i][counter.value]) {
+                    synth.triggerAttackRelease(notes[i], "8n");
+                }
+            }
+            counter.next()
+        }
+    })
+</script>
+</body>
+</html>
